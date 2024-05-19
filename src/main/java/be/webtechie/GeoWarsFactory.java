@@ -19,10 +19,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-
-/**
- * The factory which defines how each entity looks like
- */
 public class GeoWarsFactory implements EntityFactory {
 
     @Spawns("player")
@@ -65,3 +61,4 @@ public class GeoWarsFactory implements EntityFactory {
                 .build();
     }
 }
+
