@@ -12,27 +12,30 @@ public class GameServer {
     private static List<ClientHandler> clients = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
-        ServerSocket listener = new ServerSocket(PORT);
+        ServerSocket serverSocket = new ServerSocket(PORT);
         System.out.println("Game server is running...");
 
         try {
             while (true) {
-                Socket clientSocket = listener.accept();
+                Socket clientSocket = serverSocket.accept();
                 ClientHandler clientHandler = new ClientHandler(clientSocket, clients);
                 clients.add(clientHandler);
-                pool.execute(clientHandler);
+                new Thread(clientHandler).start();
             }
         } finally {
-            listener.close();
+            serverSocket.close();
         }
     }
 
-    public static void broadcast(String message, ClientHandler excludeClient) {
+    public static void broadcast(String message, ClientHandler sender) {
         for (ClientHandler client : clients) {
-            if (client != excludeClient) {
+            if (client != sender) {
                 client.sendMessage(message);
             }
         }
+    }
+    public static void removeClient(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
     }
 }
 
@@ -60,6 +63,7 @@ class ClientHandler implements Runnable {
             while ((message = in.readLine()) != null) {
                 System.out.println("Received: " + message);
                 GameServer.broadcast(message, this);
+                handleClientMessage(message);
             }
         } catch (IOException e) {
             System.err.println("Connection error: " + e.getMessage());
@@ -69,7 +73,20 @@ class ClientHandler implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            clients.remove(this);
+            GameServer.removeClient(this);
+        }
+    }
+
+
+
+    private void handleClientMessage(String message) {
+        if (message.startsWith("MOVE:") || message.equals("SHOOT") || message.equals("REPAIR") || message.equals("RELOAD")) {
+            // Broadcast to other clients
+            GameServer.broadcast(message, this);
+        } else if (message.startsWith("DAMAGE:")) {
+            int damage = Integer.parseInt(message.substring(7));
+            // Handle damage logic if needed
         }
     }
 }
+

@@ -14,29 +14,24 @@ public class GameClient {
     public GameClient(GeoWarsApp game) throws IOException {
         this.game = game;
         socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
-
-        new Thread(new IncomingReader()).start();
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        new Thread(this::listenForMessages).start();
     }
 
     public void sendMessage(String message) {
         out.println(message);
     }
 
-    private class IncomingReader implements Runnable {
-        @Override
-        public void run() {
-            try {
-                String message;
-                while ((message = in.readLine()) != null) {
-                    System.out.println("Server: " + message);
-                    // Update game state based on server messages
-                    game.processServerMessage(message);
-                }
-            } catch (IOException e) {
-                System.err.println("Connection error: " + e.getMessage());
+    private void listenForMessages() {
+        try {
+            String message;
+            while ((message = in.readLine()) != null) {
+                System.out.println("Server says: " + message);
+                game.processServerMessage(message);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

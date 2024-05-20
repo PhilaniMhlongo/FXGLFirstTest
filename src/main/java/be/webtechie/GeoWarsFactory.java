@@ -5,6 +5,7 @@ import static com.almasb.fxgl.dsl.FXGL.getAppHeight;
 import static com.almasb.fxgl.dsl.FXGL.getAppWidth;
 import static com.almasb.fxgl.dsl.FXGL.getInput;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameWorld;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 import be.webtechie.GeoWarsApp.EntityType;
 import com.almasb.fxgl.dsl.components.OffscreenCleanComponent;
@@ -26,12 +27,12 @@ public class GeoWarsFactory implements EntityFactory {
         return entityBuilder()
                 .from(data)
                 .type(EntityType.PLAYER)
-                .viewWithBBox(new Rectangle(30, 30, Color.BLUE))
+                .viewWithBBox(texture("player.png"))
                 .collidable()
                 .build();
     }
 
-    @Spawns("enemy")
+    @Spawns("obstacles")
     public Entity newEnemy(SpawnData data) {
         Circle circle = new Circle(20, 20, 20, Color.RED);
         circle.setStroke(Color.BROWN);
@@ -39,10 +40,28 @@ public class GeoWarsFactory implements EntityFactory {
 
         return entityBuilder()
                 .from(data)
-                .type(EntityType.ENEMY)
-                .viewWithBBox(circle)
+                .type(EntityType.OBSTACLES)
+                .viewWithBBox(texture("platform.png"))
                 .collidable()
-                .with(new RandomMoveComponent(new Rectangle2D(0, 0, getAppWidth(), getAppHeight()), 75))
+                .build();
+    }
+    @Spawns("repair")
+    public Entity newRepair(SpawnData data) {
+        return entityBuilder()
+                .from(data)
+                .type(EntityType.REPAIR)
+                .viewWithBBox(new Rectangle(20, 20, Color.GREEN))
+                .collidable()
+                .build();
+    }
+
+    @Spawns("reload")
+    public Entity newReload(SpawnData data) {
+        return entityBuilder()
+                .from(data)
+                .type(EntityType.RELOAD)
+                .viewWithBBox(new Rectangle(20, 20, Color.YELLOW))
+                .collidable()
                 .build();
     }
 
